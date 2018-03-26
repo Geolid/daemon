@@ -1,14 +1,20 @@
 <?php
 
-namespace Geolid\Tests\Daemon\Symfony\Command;
+namespace Geolid\Tests\Daemon\Bridge\Symfony\Command;
 
-use Geolid\Daemon\Symfony\Command\DaemonCommand;
+use Geolid\Daemon\Bridge\Symfony\Command\AbstractDaemonCommand;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
-class DaemonCommandConcrete extends DaemonCommand
+class DaemonCommandConcrete extends AbstractDaemonCommand
 {
+    public function __construct($isUnique = false)
+    {
+        parent::__construct();
+        $this->setUnique($isUnique);
+    }
+
     protected function configure()
     {
         $this->setName('test:daemon');
@@ -29,9 +35,9 @@ class DaemonCommandConcrete extends DaemonCommand
         $output->writeln('hello');
     }
 
-    protected function onShutdown(InputInterface $input, OutputInterface $output)
+    protected function onShutdown(InputInterface $input, OutputInterface $output): ?int
     {
         $output->writeln('stopped');
-        return $this->getDaemon()->getShutdownCode();
+        return parent::onShutdown($input, $output);
     }
 }

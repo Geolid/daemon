@@ -8,14 +8,18 @@
             "email" : "j.perret@geolid.com"
         }
     ],
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "cs": "vendor/bin/phpcs"
+    },
     "require" : {
         "php" : ">=7.1",
-        "mtdowling/cron-expression": "^1.2",
-        "symfony/lock": "^4.0@dev"
+        "symfony/lock": "^4.0"
     },
     "require-dev" : {
-        "phpunit/phpunit": "^6.3",
-        "symfony/console": "^3.3"
+        "phpunit/phpunit": "^7.0",
+        "symfony/console": "^3.3",
+        "geolid/phpcs": "^4.0"
     },
     "suggest": {
         "symfony/console": "Allow you to use daemon commands",

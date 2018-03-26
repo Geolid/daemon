@@ -1,11 +1,12 @@
 <?php
 
-namespace Geolid\Tests\Daemon\Symfony\Command;
+namespace Geolid\Tests\Daemon\Bridge\Symfony\Command;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Lock\LockInterface;
 use Geolid\Daemon\Daemon;
-use Geolid\Daemon\Symfony\Command\DaemonCommand;
+use Geolid\Daemon\Bridge\Symfony\Command\DaemonCommand;
 
 class DaemonCommandTest extends TestCase
 {
@@ -69,7 +70,7 @@ stopped
 
     public function testRunException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Throwable::class);
         $this->expectExceptionMessage('exception message');
 
         $c = new DaemonCommandConcreteThrowException;
@@ -79,7 +80,7 @@ stopped
 
     public function testRunNoDaemonException()
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(\Throwable::class);
         $this->expectExceptionMessage('exception message');
 
         $c = new DaemonCommandConcreteThrowException;
@@ -99,5 +100,42 @@ stopped
         ]);
 
         $this->assertSame(Daemon::MEMORY_THRESHOLD_REACHED, $c->getDaemon()->getShutdownCode());
+    }
+
+    public function testDefaultLock()
+    {
+        $c = new DaemonCommandConcrete($unique = true);
+        $t = new CommandTester($c);
+        $t->execute([]);
+
+        $this->assertInstanceOf(LockInterface::class, $c->getLock());
+    }
+
+    public function testUniqueDaemonInstance()
+    {
+        $lock = $this->prophesize(LockInterface::class);
+        $lock->acquire()->shouldBeCalled()->willReturn(false);
+
+        $c = new DaemonCommandConcrete($unique = true);
+        $c->setLock($lock->reveal());
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Command "test:daemon" is already in use');
+
+        $t = new CommandTester($c);
+        $t->execute([]);
+    }
+
+    public function testNonUniqueDaemonInstance()
+    {
+        $lock = $this->prophesize(LockInterface::class);
+        $lock->release()->shouldBeCalled();
+        $lock->acquire()->shouldNotBeCalled();
+
+        $c = new DaemonCommandConcrete($unique = false);
+        $c->setLock($lock->reveal());
+
+        $t = new CommandTester($c);
+        $t->execute([]);
     }
 }

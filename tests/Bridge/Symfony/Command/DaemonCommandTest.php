@@ -25,7 +25,7 @@ class DaemonCommandTest extends TestCase
         $c->getDaemon()->requestShutdown();
 
         $t->execute([
-            '--ttl' => 12,
+            '--ttl' => '12',
             '--memory-max' => '1K',
         ]);
 
@@ -95,7 +95,7 @@ stopped
         $c = new DaemonCommandConcreteMaxMemory;
         $t = new CommandTester($c);
         $t->execute([
-            '--ttl' => 1, // by security, to avoid tests run indefinitly in case of the memory threshold doesn't work
+            '--ttl' => '1', // by security, to avoid tests run indefinitly in case of the memory threshold doesn't work
             '--memory-max' => '500K'
         ]);
 

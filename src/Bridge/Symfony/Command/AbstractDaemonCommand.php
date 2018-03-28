@@ -179,7 +179,7 @@ abstract class AbstractDaemonCommand extends Command
         };
 
         $this->daemon
-            ->setTtl($input->getOption('ttl') ?: $this->daemon->getTtl())
+            ->setTtl($input->getOption('ttl') ? (int) $input->getOption('ttl') : $this->daemon->getTtl())
             ->setMemoryThreshold($input->getOption('memory-max') ?: $this->daemon->getMemoryThreshold())
             ->setCallback($callback)
             ->setExceptionCallback($exceptionCallback)
